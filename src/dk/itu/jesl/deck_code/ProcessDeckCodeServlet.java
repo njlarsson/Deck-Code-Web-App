@@ -1,4 +1,4 @@
-package net.avadeaux.deck_code;
+package dk.itu.jesl.deck_code;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
