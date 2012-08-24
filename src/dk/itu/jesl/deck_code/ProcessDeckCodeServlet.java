@@ -23,17 +23,17 @@ public class ProcessDeckCodeServlet extends HttpServlet {
         UserService userService = UserServiceFactory.getUserService();
         User user = userService.getCurrentUser();
 
-	String name = req.getParameter("name");
+        String name = req.getParameter("name");
         String text = req.getParameter("text");
 
-	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-	Key userKey = KeyFactory.createKey("User", user.getUserId());
-	Query query = new Query("Script", userKey).
-	    setFilter(new Query.FilterPredicate("name", Query.FilterOperator.EQUAL, name));
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        Key userKey = KeyFactory.createKey("User", user.getUserId());
+        Query query = new Query("Script", userKey).
+            setFilter(new Query.FilterPredicate("name", Query.FilterOperator.EQUAL, name));
         Entity script = datastore.prepare(query).asSingleEntity();
         script.setProperty("text", text);
-	datastore.put(script);
-	log.info("User " + user + " posted script " + name + "\n====\n" + text + "\n====");
+        datastore.put(script);
+        log.info("User " + user + " posted script " + name + "\n====\n" + text + "\n====");
         resp.sendRedirect("/");
     }
 }

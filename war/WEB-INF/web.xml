@@ -16,7 +16,7 @@
 	</servlet-mapping>
 	<servlet>
 		<servlet-name>process</servlet-name>
-		<servlet-class>net.avadeaux.deck_code.ProcessDeckCodeServlet</servlet-class>
+		<servlet-class>dk.itu.jesl.deck_code.ProcessDeckCodeServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>process</servlet-name>

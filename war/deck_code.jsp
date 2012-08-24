@@ -32,16 +32,16 @@
     <p>User: ${fn:escapeXml(user.nickname)} (<a href="<%= userService.createLogoutURL(request.getRequestURI()) %>">sign out</a>)</p>
     <table>
 <%
-	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         String userId = user.getUserId();
-	pageContext.setAttribute("userid", userId + " length " + userId.length());
+        pageContext.setAttribute("userid", userId + " length " + userId.length());
 %>
     <p>User ID: ${userid}</p>
 <%
-	Key userKey = KeyFactory.createKey("User", userId);
-	Query query = new Query("Script", userKey);
-	for (Entity script : datastore.prepare(query).asIterable()) {
-	    pageContext.setAttribute("script", URLEncoder.encode((String) script.getProperty("name"), "UTF-8"));
+        Key userKey = KeyFactory.createKey("User", userId);
+        Query query = new Query("Script", userKey);
+        for (Entity script : datastore.prepare(query).asIterable()) {
+            pageContext.setAttribute("script", URLEncoder.encode((String) script.getProperty("name"), "UTF-8"));
 %>
 <tr><td><a href="edit.jsp?script=${script}">${script}</td></tr>
 <%
@@ -50,7 +50,7 @@
     </table>
     <script type="text/javascript">
     function newScript() {
-	window.location.href = "/create.jsp?script=" + escape(prompt("Script name?"));
+        window.location.href = "/create.jsp?script=" + escape(prompt("Script name?"));
     }
     </script>
 

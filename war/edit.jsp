@@ -15,7 +15,7 @@
 <%
     String scriptName = request.getParameter("script");
     if (scriptName == null || scriptName.length() == 0) {
-	throw new NullPointerException("No script name given");
+        throw new NullPointerException("No script name given");
     }
     String scriptUrl = URLEncoder.encode(scriptName, "UTF-8");
     pageContext.setAttribute("script", scriptUrl);
@@ -37,10 +37,10 @@
     <a href="<%= userService.createLoginURL(request.getRequestURI()) %>">sign in</a>.</p>
 <%
     } else {
-	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-	Key userKey = KeyFactory.createKey("User", user.getUserId());
-	Query query = new Query("Script", userKey).
-	    setFilter(new Query.FilterPredicate("name", Query.FilterOperator.EQUAL, scriptName));
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        Key userKey = KeyFactory.createKey("User", user.getUserId());
+        Query query = new Query("Script", userKey).
+            setFilter(new Query.FilterPredicate("name", Query.FilterOperator.EQUAL, scriptName));
         Entity script = datastore.prepare(query).asSingleEntity();
         if (script == null) {
 %>
@@ -50,7 +50,7 @@
     </script>
 <%
         } else {
-	   pageContext.setAttribute("text", script.getProperty("text"));
+           pageContext.setAttribute("text", script.getProperty("text"));
 %>
     <p>User: ${fn:escapeXml(user.nickname)} (<a href="<%= userService.createLogoutURL(request.getRequestURI()) %>">sign out</a>)</p>
     <p>Script: ${script}</p>

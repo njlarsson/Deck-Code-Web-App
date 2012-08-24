@@ -15,7 +15,7 @@
 <%
     String scriptName = request.getParameter("script");
     if (scriptName == null || scriptName.length() == 0) {
-	throw new NullPointerException("No script name given");
+        throw new NullPointerException("No script name given");
     }
     String scriptUrl = URLEncoder.encode(scriptName, "UTF-8");
     pageContext.setAttribute("script", scriptUrl);
@@ -37,10 +37,10 @@
     <a href="<%= userService.createLoginURL(request.getRequestURI()) %>">sign in</a>.</p>
 <%
     } else {
-	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-	Key userKey = KeyFactory.createKey("User", user.getUserId());
-	Query query = new Query("Script", userKey).
-	    setFilter(new Query.FilterPredicate("name", Query.FilterOperator.EQUAL, scriptName));
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        Key userKey = KeyFactory.createKey("User", user.getUserId());
+        Query query = new Query("Script", userKey).
+            setFilter(new Query.FilterPredicate("name", Query.FilterOperator.EQUAL, scriptName));
         Entity script = datastore.prepare(query).asSingleEntity();
         if (script != null) {
 %>
@@ -50,12 +50,12 @@
     </script>
 <%
         } else {
-	    script = new Entity("Script", userKey);
-	    script.setProperty("name", scriptName);
-	    script.setProperty("text", "");
-	    datastore.put(script);
+            script = new Entity("Script", userKey);
+            script.setProperty("name", scriptName);
+            script.setProperty("text", "");
+            datastore.put(script);
             response.sendRedirect("/edit.jsp?script=" + scriptUrl);
-	}
+        }
     }
 %>
     <p>Go <a href="/edit.jsp?script=${script}">edit ${script}</a>.</p>
