@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.util.List" %>
+<%@ page import="dk.itu.jesl.deck_code.ProcessDeckCode" %>
+<%@ page import="dk.itu.jesl.deck_code.processor.DeckInterException" %>
 <%@ page import="com.google.appengine.api.users.User" %>
 <%@ page import="com.google.appengine.api.users.UserService" %>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
@@ -13,8 +15,8 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%
-    String scriptName = request.getParameter("script");
-    if (scriptName == null || scriptName.length() == 0) {
+   String scriptName = request.getParameter("script");
+   if (scriptName == null || scriptName.length() == 0) {
         throw new NullPointerException("No script name given");
     }
     String scriptUrl = URLEncoder.encode(scriptName, "UTF-8");
@@ -23,7 +25,7 @@
 
 <html>
   <head>
-    <title>${script} (Deck Code)</title>
+    <title>Process ${script} (Deck Code)</title>
   </head>
 
   <body>
@@ -50,15 +52,34 @@
     </script>
 <%
         } else {
-           pageContext.setAttribute("text", script.getProperty("text"));
 %>
     <p>User: ${fn:escapeXml(user.nickname)} (<a href="<%= userService.createLogoutURL(request.getRequestURI()) %>">sign out</a>)</p>
-    <p>Script: ${script}</p>
-
-    <form action="/input.jsp" method="post">
-      <input type="hidden" name="script" value="${script}" />
-      <div><textarea name="text" rows="30" cols="80">${fn:escapeXml(text)}</textarea></div>
-      <div><input type="submit" value="Submit" /></div>
+<%
+            String[] lines = script.getProperty("text").toString().split("[\\r\\n]+");
+            
+            Iterable<String> decks;
+            try {
+                decks = ProcessDeckCode.inputDecks(lines);
+            } catch (DeckInterException e) {
+                pageContext.setAttribute("errText", ProcessDeckCode.errorText(lines, scriptName, e));
+%>
+    ${errText}
+<%
+                return;
+            }
+%>
+    <form action="/process" method="post">
+<%
+            int deckNo = 0;
+            for (String deck : decks) {
+                pageContext.setAttribute("deck", deck);
+                pageContext.setAttribute("deckNo", deck);
+%>
+      <div>${fn:escapeXml(deck)}: <input type="text" name="deck${deckNo}" value="(Default)" /></div>
+<%
+            }
+%>
+        <div><input type="submit" value="Run" /></div>
     </form>
 <%
         }

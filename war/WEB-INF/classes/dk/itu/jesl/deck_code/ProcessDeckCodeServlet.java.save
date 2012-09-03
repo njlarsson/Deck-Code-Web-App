@@ -9,7 +9,6 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import dk.itu.jesl.deck_code.processor.DeckInter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Logger;
@@ -35,35 +34,17 @@ public class ProcessDeckCodeServlet extends HttpServlet {
         Entity script = datastore.prepare(query).asSingleEntity();
         script.setProperty("text", text);
         datastore.put(script);
-        log.info("User " + user + " posted script " + name);
-
-        // HtmlWriter w = new HtmlWriter(resp.getWriter());  
-        // resp.setContentType("text/html;charset=UTF-8");
-        // w.write("<html>\n<head><title>" + name +"</title></head>\n<body>\n");
-        // w.println("<h1>Processing " + name + "</h1>\n");
-
-        // String lines = script.split("[\\r\\n]+");
-        // DeckInter inter = new DeckInter();
-
-        // try {
-        //     Iterable<String> decks = inter.inputDecks(lines);
-        // } catch (DeckInter.DeckInterException e) {
-        //     error(w, lines, name, e);
-        //     return;
-        // }
-        // w.write("<table>\n<tr><th>Input deck</th><th>Value</th></tr>\n");
-        // //        for (String deck : decks) {
-            
-            
-
-
-        // String deck = "in1";
-        // String deckContent = "in1-before";
-        // w.println("<p>Deck " + deck + "<div id='" + deck + "'>" + deckContent + "</div></p>");
-        // w.println("<script type=\"text/javascript\">");  
-        // w.println("document.getElementById('" + deck + "').innerHTML = prompt('Content of " + deck + "');");
-        // w.println("</script>");
+        log.info("User " + user + " posted script " + name + "\n====\n" + text + "\n====");
+        //resp.sendRedirect("/");
+        PrintWriter w = resp.getWriter();  
+        resp.setContentType("text/html;charset=UTF-8");
+        w.println("<html><head><title>" + name +"</title></head><body>");
+        w.println("<h1>Preparing to process " + name + "</h1>");
+        String deck = "in1";
+        String deckContent = "in1-before";
+        w.println("<p>Deck " + deck + "<div id='" + deck + "'>" + deckContent + "</div></p>");
+        w.println("<script type=\"text/javascript\">");  
+        w.println("document.getElementById('" + deck + "').innerHTML = prompt('Content of " + deck + "');");
+        w.println("</script>");
     }
-
-            // w.write("<p><a href='/edit.jsp?script="); w.quoteString(name); w.write("'>Back to edit</a></p>");
 }

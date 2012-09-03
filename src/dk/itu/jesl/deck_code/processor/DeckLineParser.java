@@ -27,8 +27,9 @@ class DeckLineParser {
     private static String ifCompS = "if\\s+(\\w+)\\s+(\\w+)\\s*,\\s*(\\w+)\\s*,\\s*(\\w+)";
 
     private static Pattern topP = Pattern.compile("(stop)|" + labelS + "|" + instrS);
-    private static Pattern instrP = Pattern.compile("(new)|(movetop)|(moveall)|(jump)|(output)|(read)");
+    private static Pattern instrP = Pattern.compile("(deck)|(movetop)|(moveall)|(jump)|(output)");
     private static Pattern paramP = Pattern.compile("(?:(\\w+)(?:\\s*,\\s*(\\w+))?)?");
+    private static Pattern deckParamP = Pattern.compile("(\\w+)(\\s+input)?");
     private static Pattern jumpParamP = Pattern.compile(ifEmptyS + "|" + ifNotEmptyS + ifCompS + "|" + "|(\\w+)");
 
     static void parseLine(String line, LineProc todo) {
@@ -48,9 +49,15 @@ class DeckLineParser {
                 Matcher instrM = instrP.matcher(instr);
                 if (!instrM.matches()) {
                     todo.parseException("Illegal instruction: " + instr);
-                } else if (instrM.group(1) != null) { // new
-                    Matcher paramM = checkParam(param, 1, todo);
-                    if (paramM != null) todo.makeDeck(paramM.group(1));
+                } else if (instrM.group(1) != null) { // deck
+                    Matcher deckParamM = deckParamP.matcher(param);
+                    if (!deckParamM.matches()) {
+                        todo.parseException("Illegal deck definition parameters: " + param);
+                    } else if (deckParamM.group(2) != null) {
+                        todo.read(deckParamM.group(1));
+                    } else {
+                        todo.makeDeck(deckParamM.group(1));
+                    }
                 } else if (instrM.group(2) != null) { // movetop
                     Matcher paramM = checkParam(param, 2, todo);
                     if (paramM != null) todo.moveTop(paramM.group(1), paramM.group(2));
@@ -85,9 +92,6 @@ class DeckLineParser {
                 } else if (instrM.group(6) != null) { // output
                     Matcher paramM = checkParam(param, 1, todo);
                     if (paramM != null) todo.output(paramM.group(1));
-                } else if (instrM.group(7) != null) { // read
-                    Matcher paramM = checkParam(param, 1, todo);
-                    if (paramM != null) todo.read(paramM.group(1));
                 }
             }
         }
