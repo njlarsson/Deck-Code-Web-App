@@ -32,7 +32,7 @@ public class DeckInter {
     // Base class in non-static context.
     private abstract class LocalLineProc implements DeckLineParser.LineProc { }
 
-    private int lineNo;
+    private int lineNo, outputs;
     private boolean stop = false;
     
     private SafeMap<Deck> decks = new SafeMap<Deck>("deck");
@@ -72,7 +72,7 @@ public class DeckInter {
         decks.create(deck.name(), deck);
     }
 
-    public void run(String[] lines, final Writer w) {
+    public void run(String[] lines, final Writer w, final int maxOutputs, final long timeout) {
         try {
             lineNo = 0;
             
@@ -101,6 +101,7 @@ public class DeckInter {
             }
 
             lineNo = 0;             // reset for execution
+            outputs = 0;
             DeckLineParser.LineProc executor =
                 new DeckLineParser.LineProc() {
                     public void stop() { stop = true; }
@@ -124,7 +125,11 @@ public class DeckInter {
                     public void jumpEqual(String left, String right, String label) {
                         if (decks.get(left).compareTop(decks.get(right)) == 0) { lineNo = labels.get(label); }
                     }
-                    public void output(String deckName) { try {
+                    public void output(String deckName) {
+                        if (outputs++ >= maxOutputs) {
+                            throw new Ex("Reached maximum number of outputs (" + maxOutputs + ")");
+                        }
+                        try {
                             w.append(decks.get(deckName).toString()).append("\n");
                         } catch (IOException e) {
                             throw new Ex("Output problem: " + e);
@@ -134,7 +139,9 @@ public class DeckInter {
                     public void parseException(String message) { throw new Ex(message); }
                 };
 
+            final long deadline = System.currentTimeMillis() + timeout;
             while (!stop) {
+                if (System.currentTimeMillis() >= deadline) { throw new DeckInterTimeoutException("Reached time limit (" + timeout/1000.0 + " seconds)"); }
                 if (lineNo == lines.length) { throw new Ex("Unexpected end of file"); }
                 String line = lines[lineNo++].trim();
                 DeckLineParser.parseLine(line, executor);

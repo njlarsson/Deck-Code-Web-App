@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.io.StringWriter" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.google.appengine.api.users.User" %>
@@ -14,6 +15,7 @@
 <%@ page import="dk.itu.jesl.deck_code.IllegalDeckException" %>
 <%@ page import="dk.itu.jesl.deck_code.ProcessDeckCode" %>
 <%@ page import="dk.itu.jesl.deck_code.processor.DeckInterException" %>
+<%@ page import="dk.itu.jesl.deck_code.processor.DeckInterTimeoutException" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%
@@ -59,10 +61,11 @@
             try {
                 inDecks = ProcessDeckCode.inputDecks(lines);
             } catch (DeckInterException e) {
-                errorText = ProcessDeckCode.errorText(lines, scriptName, e);
+                errorText = ProcessDeckCode.errorText(lines, e);
             }
             if (errorText != null) {
 %>
+    <h1>Error in parsing <%= scriptNameC %></h1>
     <%= errorText %>
 <%
             } else {
@@ -71,22 +74,32 @@
                     String deckValue = request.getParameter("d_" + deckName);
                     inSpec.append(deckName + ":" + deckValue + "\n");
                 }
-                String output = "";
+                StringWriter output = new StringWriter();
                 try {
-                    output = ProcessDeckCode.run(lines, inSpec.toString());
+                    ProcessDeckCode.run(lines, inSpec.toString(), output);
                 } catch (IllegalDeckException e) {
                     errorText = "<p>Invalid input for deck " + HtmlWriter.quotedContent(e.getMessage()) + "</p>";
                 } catch (DeckInterException e) {
-                    errorText = ProcessDeckCode.errorText(lines, scriptName, e);
+                    errorText = ProcessDeckCode.errorText(lines, e);
+                } catch (DeckInterTimeoutException e) {
+                    errorText = "<p>Timeout: " + e.getMessage() + "</p>";
                 }
+                output.flush();
                 if (errorText != null) {
 %>
+    <h1>Error in running <%= scriptNameC %></h1>
     <%= errorText %>
+    <h2>Output generated:</h2>
+    <hr />
+    <pre><%= output %></pre>
+    <hr />
 <%
                 } else {
 %>
-    <p><%= scriptNameC %> finished with the following output:</p>
+    <h1><%= scriptNameC %> finished with the following output:</h1>
+    <hr />
     <pre><%= output %></pre>
+    <hr />
 <%
                 }
             }

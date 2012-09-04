@@ -61,10 +61,11 @@
             try {
                 inDecks = ProcessDeckCode.inputDecks(lines);
             } catch (DeckInterException e) {
-                errorText = ProcessDeckCode.errorText(lines, scriptName, e);
+                errorText = ProcessDeckCode.errorText(lines, e);
             }
             if (errorText != null) {
 %>
+    <h1>Error in parsing <%= scriptNameC %></h1>
     <%= errorText %>
 <%
             } else {
@@ -74,7 +75,7 @@
 <%
                 for (String deck : inDecks) {
 %>
-      <div><%= deck %>: <input type="text" size="120" name="d_<%= deck %>" value="(Default)" /></div>
+      <div><%= deck %>: <input type="text" size="120" name="d_<%= deck %>" /></div>
 <%
                 }
 %>

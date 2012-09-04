@@ -2,22 +2,20 @@ package dk.itu.jesl.deck_code;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.logging.Logger;
+import java.io.Writer;
 import java.util.regex.*;
 import dk.itu.jesl.deck_code.processor.Deck;
 import dk.itu.jesl.deck_code.processor.DeckInter;
 import dk.itu.jesl.deck_code.processor.DeckInterException;
 
 public class ProcessDeckCode {
-    private static final Logger log = Logger.getLogger(ProcessDeckCode.class.getName());
-
     public static Iterable<String> inputDecks(String[] lines) {
         return new DeckInter().inputDecks(lines);
     }
 
     private static Pattern deckP = Pattern.compile("(\\w+):(.*)");
             
-    public static String run(String[] lines, String inputs) {
+    public static void run(String[] lines, String inputs, Writer output) {
         DeckInter inter = new DeckInter();
         for (String deckSpec : inputs.split("\n")) {
             if (deckSpec.length() == 0) { continue; }
@@ -37,18 +35,15 @@ public class ProcessDeckCode {
             }
             inter.inputDeck(deck);
         }
-        StringWriter w = new StringWriter();
-        inter.run(lines, w);
-        return w.toString();
+        inter.run(lines, output, 1000, 5000);
     }
     
-    public static void errorText(String[] lines, String scriptName, DeckInterException e, HtmlWriter hw) throws IOException {
-        hw.write("<p>"); hw.quoteContent(scriptName); hw.write(":" + e.lineNo());
+    public static void errorText(String[] lines, DeckInterException e, HtmlWriter hw) throws IOException {
+        hw.write("<p>Line "); hw.write("" + e.lineNo());
         hw.write(": "); hw.quoteContent(e.getMessage()); hw.write("</p>");
         hw.write("\n<table border='0'>\n");
         int off = e.lineNo() - 1;
         for (int i = Math.max(0, off-2), s = Math.min(lines.length-1, off+2); i <= s; i++) {
-            log.info("Debug data " + off + ", " + i + ", " + lines.length);
             String begin = "", end = "";
             if (i == off) { begin = "<strong>"; end = "</strong>"; }
             hw.write("<tr><td>"); hw.write(begin); hw.write("" + (i+1)); hw.write(end); hw.write("</td>");
@@ -57,10 +52,10 @@ public class ProcessDeckCode {
         hw.write("</table>");
     }
 
-    public static String errorText(String[] lines, String scriptName, DeckInterException e) throws IOException {
+    public static String errorText(String[] lines, DeckInterException e) throws IOException {
         StringWriter sw = new StringWriter();
         HtmlWriter hw = new HtmlWriter(sw);
-        errorText(lines, scriptName, e, hw);
+        errorText(lines, e, hw);
         hw.flush();
         return sw.toString();
     }
