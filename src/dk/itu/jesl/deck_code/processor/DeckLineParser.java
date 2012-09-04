@@ -89,7 +89,7 @@ class DeckLineParser {
                     } else {    // unconditional jump
                         todo.jump(jumpParamM.group(9));
                     }
-                } else if (instrM.group(6) != null) { // output
+                } else if (instrM.group(5) != null) { // output
                     Matcher paramM = checkParam(param, 1, todo);
                     if (paramM != null) todo.output(paramM.group(1));
                 }

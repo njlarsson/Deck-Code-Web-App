@@ -41,4 +41,20 @@ public class HtmlWriter extends Writer {
             quoteString(s.charAt(i));
         }
     }
+
+    public static String quotedContent(CharSequence s) throws IOException {
+        StringWriter sw = new StringWriter();
+        HtmlWriter hw = new HtmlWriter(sw);
+        hw.quoteContent(s);
+        hw.flush();
+        return sw.toString();
+    }
+
+    public static String quotedString(CharSequence s) throws IOException {
+        StringWriter sw = new StringWriter();
+        HtmlWriter hw = new HtmlWriter(sw);
+        hw.quoteString(s);
+        hw.flush();
+        return sw.toString();
+    }
 }

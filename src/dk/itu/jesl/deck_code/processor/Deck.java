@@ -2,7 +2,7 @@ package dk.itu.jesl.deck_code.processor;
 
 import java.util.ArrayList;
 
-class Deck {
+public class Deck {
     static class OpException extends RuntimeException {
         OpException(String msg) { super(msg); }
     }
@@ -10,7 +10,7 @@ class Deck {
     private final String name;
     private final ArrayList<Integer> cards = new ArrayList<Integer>();
 
-    Deck(String name) { this.name = name; }
+    public Deck(String name) { this.name = name; }
 
     public String toString() {
         StringBuilder b = new StringBuilder();
@@ -25,7 +25,9 @@ class Deck {
         return b.toString();
     }
 
-    void parse(String s) {
+    String name() { return name; }
+
+    public void parse(String s) {
         String[] a = s.split(",");
         for (int i = 0; i < a.length; i++) {
             cards.add(Integer.parseInt(a[i].trim()));

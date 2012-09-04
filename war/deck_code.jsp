@@ -10,6 +10,7 @@
 <%@ page import="com.google.appengine.api.datastore.Entity" %>
 <%@ page import="com.google.appengine.api.datastore.Key" %>
 <%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
+<%@ page import="dk.itu.jesl.deck_code.HtmlWriter" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <html>
@@ -28,29 +29,28 @@
     <a href="<%= userService.createLoginURL(request.getRequestURI()) %>">sign in</a>.</p>
 <%
     } else {
+        String nickC = HtmlWriter.quotedContent(user.getNickname());
 %>
-    <p>User: ${fn:escapeXml(user.nickname)} (<a href="<%= userService.createLogoutURL(request.getRequestURI()) %>">sign out</a>)</p>
+    <p>User: <%= nickC %> (<a href="<%= userService.createLogoutURL("/") %>">sign out</a>)</p>
     <table>
 <%
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         String userId = user.getUserId();
-        pageContext.setAttribute("userid", userId + " length " + userId.length());
-%>
-    <p>User ID: ${userid}</p>
-<%
         Key userKey = KeyFactory.createKey("User", userId);
         Query query = new Query("Script", userKey);
         for (Entity script : datastore.prepare(query).asIterable()) {
-            pageContext.setAttribute("script", URLEncoder.encode((String) script.getProperty("name"), "UTF-8"));
+            String scriptName = (String) script.getProperty("name");
+            String scriptNameU = URLEncoder.encode(scriptName, "UTF-8");
+            String scriptNameC = HtmlWriter.quotedContent(scriptName);
 %>
-<tr><td><a href="edit.jsp?script=${script}">${script}</td></tr>
+    <tr><td><a href="edit.jsp?name=<%= scriptNameU %>"><%= scriptNameC %></a></td></tr>
 <%
         }
 %>
     </table>
     <script type="text/javascript">
     function newScript() {
-        window.location.href = "/create.jsp?script=" + escape(prompt("Script name?"));
+        window.location.href = "/create.jsp?name=" + encodeURI(prompt("Script name?"));
     }
     </script>
 

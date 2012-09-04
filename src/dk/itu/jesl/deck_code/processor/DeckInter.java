@@ -1,6 +1,8 @@
 package dk.itu.jesl.deck_code.processor;
 
 import java.util.*;
+import java.io.IOException;
+import java.io.Writer;
 
 public class DeckInter {
     public class Ex extends DeckInterException {
@@ -66,7 +68,11 @@ public class DeckInter {
         return inputs;
     }
 
-    public void run(String[] lines) {
+    public void inputDeck(Deck deck) {
+        decks.create(deck.name(), deck);
+    }
+
+    public void run(String[] lines, final Writer w) {
         try {
             lineNo = 0;
             
@@ -118,8 +124,13 @@ public class DeckInter {
                     public void jumpEqual(String left, String right, String label) {
                         if (decks.get(left).compareTop(decks.get(right)) == 0) { lineNo = labels.get(label); }
                     }
-                    public void output(String deckName) { throw new UnsupportedOperationException("Not implemented"); }
-                    public void read(String deckName) { throw new UnsupportedOperationException("Not implemented"); }
+                    public void output(String deckName) { try {
+                            w.append(decks.get(deckName).toString()).append("\n");
+                        } catch (IOException e) {
+                            throw new Ex("Output problem: " + e);
+                        }
+                    }
+                    public void read(String deckName) { }
                     public void parseException(String message) { throw new Ex(message); }
                 };
 

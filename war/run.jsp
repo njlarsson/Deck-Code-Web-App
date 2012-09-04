@@ -11,6 +11,9 @@
 <%@ page import="com.google.appengine.api.datastore.Key" %>
 <%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
 <%@ page import="dk.itu.jesl.deck_code.HtmlWriter" %>
+<%@ page import="dk.itu.jesl.deck_code.IllegalDeckException" %>
+<%@ page import="dk.itu.jesl.deck_code.ProcessDeckCode" %>
+<%@ page import="dk.itu.jesl.deck_code.processor.DeckInterException" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%
@@ -18,8 +21,10 @@
     if (scriptName == null || scriptName.length() == 0) {
         throw new NullPointerException("No script name given");
     }
+    String scriptNameU = URLEncoder.encode(scriptName, "UTF-8");
     String scriptNameC = HtmlWriter.quotedContent(scriptName);
     String scriptNameS = HtmlWriter.quotedString(scriptName);
+
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
     if (user == null) {
@@ -29,7 +34,7 @@
 %>
 <html>
   <head>
-    <title>Edit <%= scriptNameC %> (Deck Code)</title>
+    <title>Prepare <%= scriptNameC %> (Deck Code)</title>
   </head>
 
   <body>
@@ -42,23 +47,52 @@
         if (script == null) {
 %>
     <script type="text/javascript">
-        alert("<%= scriptNameS %> not found");
+        alert("<%=  scriptNameS %> not found");
         window.location.href = "/";
     </script>
 <%
         } else {
-            String scriptTextC = HtmlWriter.quotedContent(script.getProperty("text").toString());
+            String text = (String) script.getProperty("text");
+            String[] lines = text.split("[\\r\\n]+");
+            Iterable<String> inDecks = null;
+            String errorText = null;
+            try {
+                inDecks = ProcessDeckCode.inputDecks(lines);
+            } catch (DeckInterException e) {
+                errorText = ProcessDeckCode.errorText(lines, scriptName, e);
+            }
+            if (errorText != null) {
 %>
-    <p>Script: <%= scriptNameC %></p>
-
-    <form action="/submit.jsp" method="post">
-      <input type="hidden" name="name" value="<%= scriptNameS %>" />
-      <div><textarea name="text" rows="30" cols="80"><%= scriptTextC %></textarea></div>
-      <div><input type="submit" value="Submit" /></div>
-    </form>
+    <%= errorText %>
 <%
+            } else {
+                StringBuilder inSpec = new StringBuilder();
+                for (String deckName : inDecks) {
+                    String deckValue = request.getParameter("d_" + deckName);
+                    inSpec.append(deckName + ":" + deckValue + "\n");
+                }
+                String output = "";
+                try {
+                    output = ProcessDeckCode.run(lines, inSpec.toString());
+                } catch (IllegalDeckException e) {
+                    errorText = "<p>Invalid input for deck " + HtmlWriter.quotedContent(e.getMessage()) + "</p>";
+                } catch (DeckInterException e) {
+                    errorText = ProcessDeckCode.errorText(lines, scriptName, e);
+                }
+                if (errorText != null) {
+%>
+    <%= errorText %>
+<%
+                } else {
+%>
+    <p><%= scriptNameC %> finished with the following output:</p>
+    <pre><%= output %></pre>
+<%
+                }
+            }
         }
 %>
+  <p><a href="/edit.jsp?name=<%= scriptNameU %>">Edit <%= scriptNameC %></a>
   <p><a href="/">Deck code home</a>
   </body>
 </html>
