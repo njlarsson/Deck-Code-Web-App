@@ -28,9 +28,11 @@ public class Deck {
     String name() { return name; }
 
     public void parse(String s) {
-        String[] a = s.split(",");
-        for (int i = 0; i < a.length; i++) {
-            cards.add(Integer.parseInt(a[i].trim()));
+        if (s.trim().length() != 0) {
+            String[] a = s.split(",");
+            for (int i = 0; i < a.length; i++) {
+                cards.add(Integer.parseInt(a[i].trim()));
+            }
         }
     }
   
