@@ -30,7 +30,7 @@ class DeckLineParser {
     private static Pattern instrP = Pattern.compile("(deck)|(movetop)|(moveall)|(jump)|(output)");
     private static Pattern paramP = Pattern.compile("(?:(\\w+)(?:\\s*,\\s*(\\w+))?)?");
     private static Pattern deckParamP = Pattern.compile("(\\w+)(\\s+input)?");
-    private static Pattern jumpParamP = Pattern.compile(ifEmptyS + "|" + ifNotEmptyS + ifCompS + "|" + "|(\\w+)");
+    private static Pattern jumpParamP = Pattern.compile(ifEmptyS + "|" + ifNotEmptyS + "|" + ifCompS + "|(\\w+)");
 
     static void parseLine(String line, LineProc todo) {
         if (line.length() == 0) {
