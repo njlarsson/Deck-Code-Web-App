@@ -2,6 +2,7 @@
 .project
 .settings
 *.class
+appengine-generated
 
 # Package Files #
 *.jar
