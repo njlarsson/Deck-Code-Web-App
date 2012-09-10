@@ -41,9 +41,10 @@
         for (Entity script : datastore.prepare(query).asIterable()) {
             String scriptName = (String) script.getProperty("name");
             String scriptNameU = URLEncoder.encode(scriptName, "UTF-8");
+            String scriptNameS = HtmlWriter.quotedString(scriptName);
             String scriptNameC = HtmlWriter.quotedContent(scriptName);
 %>
-    <tr><td><a href="edit.jsp?name=<%= scriptNameU %>"><%= scriptNameC %></a></td></tr>
+    <tr><td><a href="edit.jsp?name=<%= scriptNameU %>"><%= scriptNameC %></a></td><td> [<a href="javascript:deleteScript('<%= scriptNameS %>')">Delete</a>]</td></tr>
 <%
         }
 %>
@@ -51,6 +52,11 @@
     <script type="text/javascript">
     function newScript() {
         window.location.href = "/create.jsp?name=" + encodeURI(prompt("Script name?"));
+    }
+    function deleteScript(name) {
+        if (confirm("Are you sure you want to delete " + name + "?")) {
+            window.location.href = "/delete.jsp?name=" + name;
+        }
     }
     </script>
 
