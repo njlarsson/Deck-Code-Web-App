@@ -38,8 +38,9 @@
     </script>
 <%
         } else {
+            Object skey = script.getKey();
             datastore.delete(script.getKey());
-            response.sendRedirect("/");
+            //            response.sendRedirect("/");
 %>
 <html>
   <head>
@@ -47,6 +48,8 @@
   </head>
   <body>
     <p><%= scriptNameS %> deleted</p>
+     
+     <p>Key: '<%= skey.toString() %>'</p>
   </body>
 </html>
 <%

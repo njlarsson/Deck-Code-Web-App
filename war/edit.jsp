@@ -10,6 +10,7 @@
 <%@ page import="com.google.appengine.api.datastore.Entity" %>
 <%@ page import="com.google.appengine.api.datastore.Key" %>
 <%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
+<%@ page import="com.google.appengine.api.datastore.Text" %>
 <%@ page import="dk.itu.jesl.deck_code.HtmlWriter" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
@@ -47,7 +48,11 @@
     </script>
 <%
         } else {
-            String scriptTextC = HtmlWriter.quotedContent(script.getProperty("text").toString());
+            Object scriptTextEntity = script.getProperty("text");
+            String scriptText = scriptTextEntity instanceof Text ?
+                ((Text) scriptTextEntity).getValue() :
+                scriptTextEntity.toString();
+            String scriptTextC = HtmlWriter.quotedContent(scriptText);
 %>
     <p>Script: <%= scriptNameC %></p>
 

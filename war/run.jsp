@@ -11,6 +11,7 @@
 <%@ page import="com.google.appengine.api.datastore.Entity" %>
 <%@ page import="com.google.appengine.api.datastore.Key" %>
 <%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
+<%@ page import="com.google.appengine.api.datastore.Text" %>
 <%@ page import="dk.itu.jesl.deck_code.HtmlWriter" %>
 <%@ page import="dk.itu.jesl.deck_code.IllegalDeckException" %>
 <%@ page import="dk.itu.jesl.deck_code.ProcessDeckCode" %>
@@ -54,8 +55,11 @@
     </script>
 <%
         } else {
-            String text = (String) script.getProperty("text");
-            String[] lines = text.split("[\\r\\n]+");
+            Object scriptTextEntity = script.getProperty("text");
+            String scriptText = scriptTextEntity instanceof Text ?
+                ((Text) scriptTextEntity).getValue() :
+                scriptTextEntity.toString();
+            String[] lines = scriptText.split("[\\r\\n]+");
             Iterable<String> inDecks = null;
             String errorText = null;
             try {

@@ -10,6 +10,7 @@
 <%@ page import="com.google.appengine.api.datastore.Entity" %>
 <%@ page import="com.google.appengine.api.datastore.Key" %>
 <%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
+<%@ page import="com.google.appengine.api.datastore.Text" %>
 <%@ page import="dk.itu.jesl.deck_code.HtmlWriter" %>
 <%@ page import="dk.itu.jesl.deck_code.ProcessDeckCode" %>
 <%@ page import="dk.itu.jesl.deck_code.processor.DeckInterException" %>
@@ -53,7 +54,7 @@
     </script>
 <%
         } else {
-            script.setProperty("text", text);
+            script.setProperty("text", new Text(text));
             datastore.put(script);
             String[] lines = text.split("[\\r\\n]+");
             Iterable<String> inDecks = null;
