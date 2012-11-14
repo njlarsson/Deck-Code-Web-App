@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 public class DeckInter {
-    public class Ex extends DeckInterException {
+    public class Ex extends DeckProcException {
         Ex(String msg) { super(msg); }
         public int lineNo() { return lineNo; }
     }
