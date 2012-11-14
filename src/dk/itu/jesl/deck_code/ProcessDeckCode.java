@@ -5,8 +5,9 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.regex.*;
 import dk.itu.jesl.deck_code.processor.Deck;
+import dk.itu.jesl.deck_code.processor.DeckComp;
 import dk.itu.jesl.deck_code.processor.DeckInter;
-import dk.itu.jesl.deck_code.processor.DeckProcException;
+import dk.itu.jesl.deck_code.processor.DeckProc;
 
 public class ProcessDeckCode {
     public static Iterable<String> inputDecks(String[] lines) {
@@ -38,7 +39,12 @@ public class ProcessDeckCode {
         inter.run(lines, output, 1000, 5000);
     }
     
-    public static void errorText(String[] lines, DeckProcException e, HtmlWriter hw) throws IOException {
+    public static void compile(String[] lines, Writer output) {
+        DeckComp comp = new DeckComp();
+        comp.run(lines, output);
+    }
+    
+    public static void errorText(String[] lines, DeckProc.Ex e, HtmlWriter hw) throws IOException {
         hw.write("<p>Line "); hw.write("" + e.lineNo());
         hw.write(": "); hw.quoteContent(e.getMessage()); hw.write("</p>");
         hw.write("\n<table border='0'>\n");
@@ -52,7 +58,7 @@ public class ProcessDeckCode {
         hw.write("</table>");
     }
 
-    public static String errorText(String[] lines, DeckProcException e) throws IOException {
+    public static String errorText(String[] lines, DeckProc.Ex e) throws IOException {
         StringWriter sw = new StringWriter();
         HtmlWriter hw = new HtmlWriter(sw);
         errorText(lines, e, hw);

@@ -64,7 +64,7 @@
 <%
         }
 %>
-  <p><a href="/">Deck code home</a>
+  <p><a href="/">Deck code home</a></p>
   </body>
 </html>
 <%

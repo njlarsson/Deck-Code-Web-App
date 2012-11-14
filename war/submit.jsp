@@ -13,7 +13,7 @@
 <%@ page import="com.google.appengine.api.datastore.Text" %>
 <%@ page import="dk.itu.jesl.deck_code.HtmlWriter" %>
 <%@ page import="dk.itu.jesl.deck_code.ProcessDeckCode" %>
-<%@ page import="dk.itu.jesl.deck_code.processor.DeckInterException" %>
+<%@ page import="dk.itu.jesl.deck_code.processor.DeckProc" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%
@@ -61,7 +61,7 @@
             String errorText = null;
             try {
                 inDecks = ProcessDeckCode.inputDecks(lines);
-            } catch (DeckInterException e) {
+            } catch (DeckProc.Ex e) {
                 errorText = ProcessDeckCode.errorText(lines, e);
             }
             if (errorText != null) {
@@ -80,14 +80,17 @@
 <%
                 }
 %>
-      <div><input type="submit" value="Run" /></div>
+      <div>
+        <input type="submit" value="Run" />
+      </div>
     </form>
 <%
             }
         }
 %>
-  <p><a href="/edit.jsp?name=<%= scriptNameU %>">Edit <%= scriptNameC %></a>
-  <p><a href="/">Deck code home</a>
+  <p><a href="/edit.jsp?name=<%= scriptNameU %>">Edit <%= scriptNameC %></a></p>
+  <p><a href="/compile.jsp?name=<%= scriptNameU %>">Compile <%= scriptNameC %> to DeckVM code</a></p>
+  <p><a href="/">Deck code home</a></p>
   </body>
 </html>
 <%

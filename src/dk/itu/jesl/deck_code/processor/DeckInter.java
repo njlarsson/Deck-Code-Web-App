@@ -1,42 +1,17 @@
 package dk.itu.jesl.deck_code.processor;
 
-import java.util.*;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 
-public class DeckInter {
-    public class Ex extends DeckProcException {
-        Ex(String msg) { super(msg); }
-        public int lineNo() { return lineNo; }
-    }
-
-    private class SafeMap<T> {
-        private HashMap<String, T> map = new HashMap<String, T>();
-        private final String what;
-
-        SafeMap(String what) { this.what = what; }
-
-        T get(String name) {
-            T value = map.get(name);
-            if (value == null) { throw new Ex("No such " + what + ": " + name); }
-            return value;
-        }
-
-        void create(String name, T value) {
-            if (map.put(name, value) != null) {
-                throw new Ex("Already defined " + what + ": " + name);
-            }
-        }
-    }
-
-    // Base class in non-static context.
-    private abstract class LocalLineProc implements DeckLineParser.LineProc { }
-
+public class DeckInter extends DeckProc {
     private int lineNo, outputs;
     private boolean stop = false;
     
     private SafeMap<Deck> decks = new SafeMap<Deck>("deck");
     private SafeMap<Integer> labels = new SafeMap<Integer>("label");
+
+    int lineNo() { return lineNo; }
 
     public Iterable<String> inputDecks(String[] lines) {
         final ArrayList<String> inputs = new ArrayList<String>();

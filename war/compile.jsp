@@ -13,10 +13,8 @@
 <%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
 <%@ page import="com.google.appengine.api.datastore.Text" %>
 <%@ page import="dk.itu.jesl.deck_code.HtmlWriter" %>
-<%@ page import="dk.itu.jesl.deck_code.IllegalDeckException" %>
 <%@ page import="dk.itu.jesl.deck_code.ProcessDeckCode" %>
 <%@ page import="dk.itu.jesl.deck_code.processor.DeckProc" %>
-<%@ page import="dk.itu.jesl.deck_code.processor.DeckInterTimeoutException" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%
@@ -27,7 +25,6 @@
     String scriptNameU = URLEncoder.encode(scriptName, "UTF-8");
     String scriptNameC = HtmlWriter.quotedContent(scriptName);
     String scriptNameS = HtmlWriter.quotedString(scriptName);
-
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
     if (user == null) {
@@ -37,7 +34,7 @@
 %>
 <html>
   <head>
-    <title>Prepare <%= scriptNameC %> (Deck Code)</title>
+    <title>Compile <%= scriptNameC %> (Deck Code)</title>
   </head>
 
   <body>
@@ -50,7 +47,7 @@
         if (script == null) {
 %>
     <script type="text/javascript">
-        alert("<%=  scriptNameS %> not found");
+        alert("<%= scriptNameS %> not found");
         window.location.href = "/";
     </script>
 <%
@@ -60,52 +57,30 @@
                 ((Text) scriptTextEntity).getValue() :
                 scriptTextEntity.toString();
             String[] lines = scriptText.split("[\\r\\n]+");
-            Iterable<String> inDecks = null;
+            StringWriter output = new StringWriter();
             String errorText = null;
             try {
-                inDecks = ProcessDeckCode.inputDecks(lines);
+                ProcessDeckCode.compile(lines, output);
             } catch (DeckProc.Ex e) {
                 errorText = ProcessDeckCode.errorText(lines, e);
             }
+            output.flush();
             if (errorText != null) {
 %>
-    <h1>Error in parsing <%= scriptNameC %></h1>
-    <%= errorText %>
-<%
-            } else {
-                StringBuilder inSpec = new StringBuilder();
-                for (String deckName : inDecks) {
-                    String deckValue = request.getParameter("d_" + deckName);
-                    inSpec.append(deckName + ":" + deckValue + "\n");
-                }
-                StringWriter output = new StringWriter();
-                try {
-                    ProcessDeckCode.run(lines, inSpec.toString(), output);
-                } catch (IllegalDeckException e) {
-                    errorText = "<p>Invalid input for deck " + HtmlWriter.quotedContent(e.getMessage()) + "</p>";
-                } catch (DeckProc.Ex e) {
-                    errorText = ProcessDeckCode.errorText(lines, e);
-                } catch (DeckInterTimeoutException e) {
-                    errorText = "<p>Timeout: " + e.getMessage() + "</p>";
-                }
-                output.flush();
-                if (errorText != null) {
-%>
-    <h1>Error in running <%= scriptNameC %></h1>
+    <h1>Error in compiling <%= scriptNameC %></h1>
     <%= errorText %>
     <h2>Output generated:</h2>
     <hr />
     <pre><%= output %></pre>
     <hr />
 <%
-                } else {
+            } else {
 %>
     <h1><%= scriptNameC %> finished with the following output:</h1>
     <hr />
     <pre><%= output %></pre>
     <hr />
 <%
-                }
             }
         }
 %>
