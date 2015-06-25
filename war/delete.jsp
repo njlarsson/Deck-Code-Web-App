@@ -48,8 +48,7 @@
   </head>
   <body>
     <p><%= scriptNameS %> deleted</p>
-     
-     <p>Key: '<%= skey.toString() %>'</p>
+  <p><a href="/">Deck code home</a></p>
   </body>
 </html>
 <%

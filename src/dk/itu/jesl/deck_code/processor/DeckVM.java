@@ -10,6 +10,6 @@ public class DeckVM {
     public static final int JUMP = 64 + 7;
     public static final int OUTPUT = 16 + 8;
     public static final int READ = 16 + 9;
-    public static final int READ_FILE = 48 + 10;
+    public static final int READ_FILE = 32 + 16 + 10;
     public static final int STOP = 11;
 }

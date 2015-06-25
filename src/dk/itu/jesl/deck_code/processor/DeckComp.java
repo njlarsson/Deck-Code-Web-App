@@ -16,26 +16,26 @@ public class DeckComp extends DeckProc {
         final ArrayList<String> deckList = new ArrayList<String>();
         final ArrayList<Integer> inputs = new ArrayList<Integer>();
         lineNo = 0;
-        instrNo = 1;
+        instrNo = 0;
             
         // Scan for labels and decks.
         DeckLineParser.LineProc labelParser =
             new DeckLineParser.LineProc() {
-                public void stop() { instrNo++; }
+                public void stop() { instrNo += 1; }
                 public void label(String label) { labels.create(label, instrNo); }
                 public void makeDeck(String deckName) {
                     deckList.add(deckName);
                     decks.create(deckName, deckList.size());
                 }
-                public void moveTop(String left, String right) { instrNo++; }
-                public void moveAll(String left, String right) { instrNo++; }
-                public void jump(String label) { instrNo++; }
-                public void jumpEmpty(String deckName, String label) { instrNo++; }
-                public void jumpNotEmpty(String deckName, String label) { instrNo++; }
-                public void jumpLess(String left, String right, String label) { instrNo++; }
-                public void jumpGreater(String left, String right, String label) { instrNo++; }
-                public void jumpEqual(String left, String right, String label) { instrNo++; }
-                public void output(String deckName) { instrNo++; }
+                public void moveTop(String left, String right) { instrNo += 3; }
+                public void moveAll(String left, String right) { instrNo += 3; }
+                public void jump(String label) { instrNo += 2; }
+                public void jumpEmpty(String deckName, String label) { instrNo += 3; }
+                public void jumpNotEmpty(String deckName, String label) { instrNo +=3; }
+                public void jumpLess(String left, String right, String label) { instrNo += 4; }
+                public void jumpGreater(String left, String right, String label) { instrNo += 4; }
+                public void jumpEqual(String left, String right, String label) { instrNo += 4; }
+                public void output(String deckName) { instrNo += 2; }
                 public void read(String deckName) {
                     deckList.add(deckName);
                     inputs.add(deckList.size());
@@ -48,11 +48,15 @@ public class DeckComp extends DeckProc {
             String line = lines[lineNo++].trim();
             DeckLineParser.parseLine(line, labelParser);
         }
-        w.println("Decks:");
+        w.print("Decks:      ");
+        w.println(deckList.size());
         for (int i = 0; i < deckList.size(); i++) {
-            w.print(i+1);
-            w.print(":   ");
             String name = deckList.get(i);
+            w.print(i+1);
+            w.print(":");
+            w.print(pad(10, i+1));
+            w.print(name.length());
+            w.print(pad(3, name.length()));
             for (int j = 0; j < name.length(); j++) {
                 int c = name.charAt(j);
                 w.print(" ");
@@ -61,14 +65,17 @@ public class DeckComp extends DeckProc {
             w.println();
         }
         w.println();
-        w.print("Inputs:");
+        w.print("Inputs:     ");
+        w.print(inputs.size());
+        w.print(pad(3, inputs.size()));
         for (int deckNo : inputs) {
             w.print(" ");
             w.print(deckNo);
         }
         w.println();
         w.println();
-        w.println("Program:");
+        w.print("Program:    ");
+        w.println(instrNo);
 
         DeckLineParser.LineProc codeGenerator =
             new DeckLineParser.LineProc() {
@@ -88,7 +95,7 @@ public class DeckComp extends DeckProc {
                 public void parseException(String message) { throw new Ex(message); }
             };
         lineNo = 0;             // reset for code generation
-        instrNo = 1;
+        instrNo = 0;
         while (lineNo < lines.length) {
             String line = lines[lineNo++].trim();
             DeckLineParser.parseLine(line, codeGenerator);
@@ -97,12 +104,27 @@ public class DeckComp extends DeckProc {
     }
 
     private void outCode(PrintWriter w, int... code) {
-        w.print(instrNo++);
+        w.print(instrNo);
         w.print(":");
+        w.print(pad(9, instrNo));
         for (int i : code) {
             w.print(" ");
             w.print(i);
+            instrNo++;
         }
         w.println();
+    }
+
+    private static String pad(int f, int i) {
+        StringBuilder b = new StringBuilder();
+        while (f > 1 && i > 9) {
+            i /= 10;
+            f--;
+        }
+        while (f > 0) {
+            b.append(" ");
+            f--;
+        }
+        return b.toString();
     }
 }
